@@ -219,6 +219,57 @@
       gap: 24px;
     }
 
+    .music-toggle {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 999px;
+      background: rgba(9, 10, 35, 0.55);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 14px 40px rgba(4, 5, 18, 0.28);
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .music-toggle:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.26);
+      background: rgba(15, 17, 48, 0.72);
+    }
+
+    .music-toggle.is-muted {
+      color: rgba(240,240,255,0.76);
+    }
+
+    .music-toggle[hidden] {
+      display: none;
+    }
+
+    .music-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #7cffba;
+      box-shadow: 0 0 14px rgba(124, 255, 186, 0.75);
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .music-toggle.is-muted .music-dot {
+      background: rgba(255,255,255,0.35);
+      box-shadow: none;
+    }
+
     .headline {
       font-size: clamp(32px, 5.5vw, 72px);
       font-weight: 300;
@@ -405,6 +456,13 @@
       /* Arc / ring decorations scaled back */
       .arc-bl { width: 180px; height: 180px; bottom: -60px; left: -40px; }
       .ring-r  { width: 140px; height: 140px; }
+
+      .music-toggle {
+        right: 14px;
+        bottom: 14px;
+        padding: 10px 14px;
+        font-size: 12px;
+      }
     }
 
     /* ── Tablet tweaks ── */
@@ -624,6 +682,16 @@
   </div>
 </div>
 
+<audio id="bg-music" loop preload="metadata" playsinline webkit-playsinline="true">
+  <!-- Add your music file at assets/background-music.mp3 -->
+  <source src="assets/background-music.mp3" type="audio/mpeg" />
+</audio>
+
+<button class="music-toggle is-muted" id="music-toggle" type="button" aria-pressed="false" aria-label="Toggle background music">
+  <span class="music-dot" aria-hidden="true"></span>
+  <span id="music-label">Music off</span>
+</button>
+
 <script>
   // ── Countdown to a launch date ──
   const LAUNCH = new Date('2026-05-08T08:00:00');
@@ -652,6 +720,83 @@
 
   tick();
   setInterval(tick, 1000);
+
+  // ── Background music ──
+  const bgMusic = document.getElementById('bg-music');
+  const musicToggle = document.getElementById('music-toggle');
+  const musicLabel = document.getElementById('music-label');
+  let musicReady = false;
+  let musicUnavailable = false;
+
+  function updateMusicUI(isPlaying, blocked = false) {
+    musicToggle.classList.toggle('is-muted', !isPlaying);
+    musicToggle.setAttribute('aria-pressed', String(isPlaying));
+    musicToggle.disabled = musicUnavailable;
+    musicLabel.textContent = isPlaying ? 'Music on' : blocked ? 'Tap for music' : 'Music off';
+  }
+
+  async function playBackgroundMusic() {
+    if (!musicReady || musicUnavailable) return;
+
+    try {
+      await bgMusic.play();
+      updateMusicUI(true);
+    } catch {
+      updateMusicUI(false, true);
+    }
+  }
+
+  async function toggleBackgroundMusic() {
+    if (musicUnavailable) return;
+
+    if (!musicReady) {
+      updateMusicUI(false, true);
+      return;
+    }
+
+    if (bgMusic.paused) {
+      await playBackgroundMusic();
+      return;
+    }
+
+    bgMusic.pause();
+    updateMusicUI(false);
+  }
+
+  bgMusic.volume = 0.35;
+  updateMusicUI(false, true);
+
+  function markMusicReady() {
+    musicReady = true;
+    updateMusicUI(false);
+    playBackgroundMusic();
+  }
+
+  bgMusic.addEventListener('loadedmetadata', markMusicReady, { once: true });
+  bgMusic.addEventListener('canplay', markMusicReady, { once: true });
+
+  bgMusic.addEventListener('play', () => updateMusicUI(true));
+  bgMusic.addEventListener('pause', () => updateMusicUI(false));
+
+  bgMusic.addEventListener('error', () => {
+    musicUnavailable = true;
+    musicToggle.classList.add('is-muted');
+    musicLabel.textContent = 'Music unavailable';
+  });
+
+  musicToggle.addEventListener('click', () => {
+    toggleBackgroundMusic();
+  });
+
+  ['pointerdown', 'keydown'].forEach(eventName => {
+    window.addEventListener(eventName, () => {
+      if (musicReady && bgMusic.paused) {
+        playBackgroundMusic();
+      }
+    }, { once: true });
+  });
+
+  bgMusic.load();
 
   // ── Subscription ──
   // Replace YOUR_FORM_ID below with the ID from your Formspree dashboard
