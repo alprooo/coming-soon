@@ -1,51 +1,713 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAFARIHLAH - Coming Soon</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coming Soon</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep: #0d0d2b;
+      --bg-mid: #1a1560;
+      --accent: #5b5ef4;
+      --accent-light: #7c7ff7;
+      --accent-glow: rgba(91,94,244,0.55);
+      --white: #f0f0ff;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg-deep);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* ── Full-bleed stage ── */
+    .stage {
+      position: relative;
+      width: 100vw;
+      min-height: 100vh;
+      background: radial-gradient(ellipse at 60% 40%, #2e2b8f 0%, #1a1560 40%, #0d0d2b 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 40px 60px;
+    }
+
+    /* ── Blobs ── */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(0px);
+      pointer-events: none;
+    }
+
+    /* Top-center squiggly tube — approximated with layered rings */
+    .tube-top {
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 180px;
+    }
+
+    .tube-top svg { width: 100%; height: 100%; }
+
+    /* Bottom-left arc */
+    .arc-bl {
+      bottom: -80px;
+      left: -60px;
+      width: 260px;
+      height: 260px;
+    }
+
+    /* Right mid ring */
+    .ring-r {
+      right: -60px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 200px;
+      height: 200px;
+    }
+
+    /* Top-right faint circle */
+    .circle-tr {
+      top: 10px;
+      right: 10px;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(110,110,240,0.18), transparent 70%);
+      border: 1.5px solid rgba(110,110,240,0.15);
+    }
+
+    /* ── Animations ── */
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-14px); }
+    }
+    @keyframes floatX {
+      0%, 100% { transform: translateX(-60px) translateY(-50%); }
+      50% { transform: translateX(-50px) translateY(-50%); }
+    }
+    @keyframes floatBL {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(10px); }
+    }
+
+    .tube-top { animation: floatY 5s ease-in-out infinite; }
+    .ring-r    { animation: floatX 6s ease-in-out infinite; right: -60px; }
+    .arc-bl    { animation: floatBL 7s ease-in-out infinite; }
+
+    /* ── Travel icons ── */
+    .travel-icon {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0.18;
+    }
+
+    /* Airplane — flies across */
+    .plane-wrap {
+      position: absolute;
+      top: 18%;
+      left: -80px;
+      z-index: 5;
+      animation: flyAcross 18s linear infinite;
+    }
+    .plane-wrap svg { filter: drop-shadow(0 0 8px rgba(130,132,255,0.7)); }
+
+    @keyframes flyAcross {
+      0%   { left: -80px; top: 18%; opacity: 0; }
+      5%   { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { left: calc(100% + 80px); top: 22%; opacity: 0; }
+    }
+
+    /* Dashed flight path */
+    .flight-path {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    /* Floating globe */
+    .icon-globe {
+      bottom: 14%;
+      right: 14%;
+      animation: floatY 8s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    /* Compass */
+    .icon-compass {
+      top: 12%;
+      left: 8%;
+      animation: floatY 9s ease-in-out infinite;
+      animation-delay: -1.5s;
+    }
+
+    /* Location pin */
+    .icon-pin {
+      top: 62%;
+      left: 16%;
+      animation: floatY 7s ease-in-out infinite;
+      animation-delay: -4s;
+    }
+
+    /* Suitcase */
+    .icon-suitcase {
+      bottom: 10%;
+      right: 32%;
+      animation: floatY 6.5s ease-in-out infinite;
+      animation-delay: -2s;
+    }
+
+    /* Crescent */
+    .icon-crescent {
+      top: 8%;
+      right: 22%;
+      animation: floatY 10s ease-in-out infinite;
+      animation-delay: -5s;
+    }
+
+    /* Kaaba */
+    .icon-kaaba {
+      top: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: floatY 11s ease-in-out infinite;
+      animation-delay: -2.5s;
+      opacity: 0.28;
+    }
+
+    /* Backpack */
+    .icon-backpack {
+      top: 55%;
+      right: 10%;
+      animation: floatY 8.5s ease-in-out infinite;
+      animation-delay: -6s;
+    }
+
+    /* Prayer beads */
+    .icon-tasbih {
+      top: 30%;
+      left: 3%;
+      animation: floatY 9s ease-in-out infinite;
+      animation-delay: -3s;
+    }
+
+    /* ── Content ── */
+    .content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .headline {
+      font-size: clamp(32px, 5.5vw, 72px);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      text-wrap: balance;
+      max-width: 700px;
+    }
+
+    .brand-name {
+      font-size: clamp(22px, 3.8vw, 52px);
+      font-weight: 600;
+      color: var(--accent-light);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-top: -12px;
+      text-shadow: 0 0 32px rgba(124,127,247,0.6), 0 0 8px rgba(124,127,247,0.3);
+    }
+
+    .sub {
+      font-size: clamp(13px, 1.4vw, 17px);
+      color: rgba(220,220,255,0.7);
+      font-weight: 400;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Email form ── */
+    .form-row {
+      display: flex;
+      gap: 0;
+      align-items: center;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 5px 5px 5px 20px;
+      backdrop-filter: blur(12px);
+      width: min(420px, 90vw);
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .form-row:focus-within {
+      border-color: var(--accent-light);
+      box-shadow: 0 0 0 3px rgba(91,94,244,0.2);
+    }
+
+    .email-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--white);
+      min-width: 0;
+    }
+
+    .email-input::placeholder { color: rgba(200,200,240,0.45); }
+
+    .notify-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 11px 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(91,94,244,0.4);
+    }
+
+    .notify-btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 28px rgba(91,94,244,0.55);
+    }
+
+    .notify-btn:active { transform: translateY(0); }
+
+    /* Success state */
+    .success-msg {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      background: rgba(91,244,160,0.12);
+      border: 1px solid rgba(91,244,160,0.3);
+      border-radius: 50px;
+      padding: 12px 28px;
+      color: #8dffc4;
+      font-size: 14px;
+      font-weight: 500;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .success-msg.show { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Error */
+    .error-msg {
+      font-size: 12px;
+      color: #ff8a8a;
+      height: 16px;
+      transition: opacity 0.2s;
+    }
+
+    /* ── Countdown ── */
+    .countdown {
+      display: flex;
+      gap: 28px;
+    }
+
+    .count-item {
+      text-align: center;
+      min-width: 52px;
+    }
+
+    .count-num {
+      font-size: clamp(22px, 3.2vw, 42px);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .count-label {
+      font-size: 11px;
+      color: rgba(200,200,255,0.45);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    .count-sep {
+      font-size: clamp(22px, 3.2vw, 42px);
+      color: rgba(200,200,255,0.25);
+      font-weight: 200;
+      align-self: flex-start;
+      padding-top: 2px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      .stage {
+        padding: 120px 24px 48px;
+        gap: 18px;
+        min-height: 100svh;
+      }
+
+      .content { gap: 16px; }
+
+      .brand-name {
+        font-size: clamp(18px, 7vw, 32px);
+        letter-spacing: 4px;
+        margin-top: -8px;
+      }
+
+      .countdown { gap: 14px; }
+      .count-item { min-width: 38px; }
+      .count-label { letter-spacing: 1px; }
+
+      /* Scale down the Kaaba for narrow screens */
+      .icon-kaaba svg { width: 120px; height: 107px; }
+
+      /* Move tasbih off the left edge clip zone */
+      .icon-tasbih { left: -6px; top: 35%; }
+
+      /* Hide icons that crowd the centre on small screens */
+      .icon-pin,
+      .icon-suitcase,
+      .icon-backpack { display: none; }
+
+      /* Reposition remaining icons to corners */
+      .icon-compass { top: auto; bottom: 8%; left: 6%; }
+      .icon-crescent { top: auto; bottom: 18%; right: 6%; }
+      .icon-globe { bottom: 6%; right: 6%; }
+
+      /* Arc / ring decorations scaled back */
+      .arc-bl { width: 180px; height: 180px; bottom: -60px; left: -40px; }
+      .ring-r  { width: 140px; height: 140px; }
+    }
+
+    /* ── Tablet tweaks ── */
+    @media (min-width: 601px) and (max-width: 900px) {
+      .stage { padding: 80px 40px; gap: 22px; }
+      .icon-pin, .icon-suitcase { display: none; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-left">
-        </div>
-        <div class="nav-center">
-            <h1 class="logo-text">SAFARIHLAH</h1>
-        </div>
-        <div class="nav-right">
-            <span class="countdown-header" id="countdownHeader">-- DAYS LEFT</span>
-        </div>
-    </nav>
 
-    <!-- Main Content -->
-    <div class="main-container">
-        <div class="content-wrapper">
-            <h2 class="coming-soon">COMING SOON</h2>
-            
-            <p class="description">
-                We're currently working on creating something great.<br>
-                We'll be here soon.
-            </p>
-            <img src="https://ultimateqa.com/wp-content/uploads/2018/09/2.-minions-clapping-and-super-excited-gif.gif" alt="">
-        </div>
+<div class="stage">
 
-        <!-- Background Image -->
-        <div class="background-image"></div>
+  <!-- Decorative shapes -->
+
+  <div class="blob arc-bl">
+    <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="ag1" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#7b7ef8"/>
+          <stop offset="100%" stop-color="#4042c2"/>
+        </radialGradient>
+        <filter id="blurA"><feGaussianBlur stdDeviation="1"/></filter>
+      </defs>
+      <path d="M20 240 A160 160 0 0 1 240 80"
+            stroke="url(#ag1)" stroke-width="28" stroke-linecap="round" fill="none" filter="url(#blurA)"/>
+      <path d="M20 240 A160 160 0 0 1 240 80"
+            stroke="rgba(200,202,255,0.3)" stroke-width="7" stroke-linecap="round" fill="none"/>
+    </svg>
+  </div>
+
+  <div class="blob ring-r">
+    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="rg1" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stop-color="#8082fa"/>
+          <stop offset="100%" stop-color="#3b3dc0"/>
+        </radialGradient>
+        <filter id="blurR"><feGaussianBlur stdDeviation="1.2"/></filter>
+      </defs>
+      <circle cx="100" cy="100" r="75" stroke="url(#rg1)" stroke-width="26" fill="none" filter="url(#blurR)"/>
+      <circle cx="100" cy="100" r="75" stroke="rgba(200,202,255,0.28)" stroke-width="6" fill="none"/>
+    </svg>
+  </div>
+
+  <div class="blob circle-tr"></div>
+
+  <!-- ── Travel icons ── -->
+
+  <!-- Airplane flying across (top-down view, facing right) -->
+  <div class="plane-wrap">
+    <svg width="64" height="48" viewBox="0 0 64 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="planeGrad" cx="40%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#c0c2ff"/>
+          <stop offset="100%" stop-color="#7b7ef8"/>
+        </radialGradient>
+        <filter id="planeGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <!-- Fuselage -->
+      <ellipse cx="34" cy="24" rx="22" ry="4" fill="url(#planeGrad)" filter="url(#planeGlow)"/>
+      <!-- Nose cone -->
+      <path d="M56 24 C60 24 64 24 64 24 C64 24 60 22 56 24Z" fill="rgba(200,202,255,0.9)"/>
+      <!-- Main wings -->
+      <path d="M32 24 C30 14 22 6 14 8 C18 14 24 20 28 24 C24 28 18 34 14 40 C22 42 30 34 32 24Z" fill="url(#planeGrad)" opacity="0.92"/>
+      <!-- Tail fins -->
+      <path d="M14 24 C12 19 8 15 4 16 C7 19 10 22 12 24 C10 26 7 29 4 32 C8 33 12 29 14 24Z" fill="rgba(140,143,235,0.8)"/>
+      <!-- Engine pods -->
+      <ellipse cx="26" cy="16" rx="5" ry="2.2" fill="rgba(180,182,255,0.7)"/>
+      <ellipse cx="26" cy="32" rx="5" ry="2.2" fill="rgba(180,182,255,0.7)"/>
+      <!-- Cockpit window -->
+      <ellipse cx="52" cy="24" rx="3" ry="2" fill="rgba(220,222,255,0.5)"/>
+    </svg>
+  </div>
+
+  <!-- Dashed flight path SVG overlay -->
+  <svg class="flight-path" viewBox="0 0 1100 687" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M -80 125 Q 300 80, 550 160 Q 800 240, 1180 152" stroke="rgba(140,143,255,0.12)" stroke-width="1.5" stroke-dasharray="6 10" fill="none"/>
+  </svg>
+
+  <!-- Globe -->
+  <div class="travel-icon icon-globe">
+    <svg width="58" height="58" viewBox="0 0 58 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="29" cy="29" r="22" stroke="rgba(160,163,255,0.85)" stroke-width="1.8"/>
+      <ellipse cx="29" cy="29" rx="10" ry="22" stroke="rgba(160,163,255,0.6)" stroke-width="1.4"/>
+      <line x1="7" y1="29" x2="51" y2="29" stroke="rgba(160,163,255,0.5)" stroke-width="1.2"/>
+      <line x1="9" y1="20" x2="49" y2="20" stroke="rgba(160,163,255,0.35)" stroke-width="1"/>
+      <line x1="9" y1="38" x2="49" y2="38" stroke="rgba(160,163,255,0.35)" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <!-- Compass -->
+  <div class="travel-icon icon-compass">
+    <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="25" cy="25" r="20" stroke="rgba(160,163,255,0.8)" stroke-width="1.8"/>
+      <polygon points="25,8 28,22 25,20 22,22" fill="rgba(200,202,255,0.9)"/>
+      <polygon points="25,42 22,28 25,30 28,28" fill="rgba(160,163,255,0.5)"/>
+      <circle cx="25" cy="25" r="2.5" fill="rgba(200,202,255,0.7)"/>
+      <text x="25" y="14" text-anchor="middle" font-size="5" fill="rgba(200,202,255,0.6)" font-family="DM Sans,sans-serif">N</text>
+      <text x="25" y="40" text-anchor="middle" font-size="5" fill="rgba(160,163,255,0.5)" font-family="DM Sans,sans-serif">S</text>
+      <text x="42" y="27" text-anchor="middle" font-size="5" fill="rgba(160,163,255,0.5)" font-family="DM Sans,sans-serif">E</text>
+      <text x="8" y="27" text-anchor="middle" font-size="5" fill="rgba(160,163,255,0.5)" font-family="DM Sans,sans-serif">W</text>
+    </svg>
+  </div>
+
+  <!-- Location pin -->
+  <div class="travel-icon icon-pin">
+    <svg width="34" height="44" viewBox="0 0 34 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17 2 C8.2 2 2 8.5 2 17 C2 28 17 42 17 42 C17 42 32 28 32 17 C32 8.5 25.8 2 17 2Z" stroke="rgba(160,163,255,0.85)" stroke-width="1.8" fill="rgba(100,103,220,0.15)"/>
+      <circle cx="17" cy="17" r="5" stroke="rgba(160,163,255,0.7)" stroke-width="1.4" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- Backpack -->
+  <div class="travel-icon icon-backpack">
+    <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- main body -->
+      <rect x="6" y="14" width="32" height="32" rx="6" stroke="rgba(160,163,255,0.85)" stroke-width="1.8" fill="rgba(100,103,220,0.12)"/>
+      <!-- top handle -->
+      <path d="M16 14 L16 9 C16 7 17.5 6 20 6 L24 6 C26.5 6 28 7 28 9 L28 14" stroke="rgba(160,163,255,0.7)" stroke-width="1.6" fill="none"/>
+      <!-- straps -->
+      <path d="M6 20 C2 22 2 38 6 40" stroke="rgba(160,163,255,0.5)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M38 20 C42 22 42 38 38 40" stroke="rgba(160,163,255,0.5)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <!-- front pocket -->
+      <rect x="12" y="30" width="20" height="12" rx="3" stroke="rgba(160,163,255,0.55)" stroke-width="1.3" fill="none"/>
+      <!-- zipper line -->
+      <line x1="6" y1="26" x2="38" y2="26" stroke="rgba(160,163,255,0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+    </svg>
+  </div>
+
+  <!-- Crescent moon + star -->
+  <div class="travel-icon icon-crescent">
+    <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 8 C20 10 13 19 13 29 C13 39 20 47 30 49 C18 50 7 41 7 29 C7 17 17 8 30 8Z" fill="rgba(200,202,255,0.75)" stroke="rgba(200,202,255,0.4)" stroke-width="0.8"/>
+      <!-- star -->
+      <polygon points="40,10 41.5,14.5 46,14.5 42.5,17.5 44,22 40,19 36,22 37.5,17.5 34,14.5 38.5,14.5" fill="rgba(200,202,255,0.7)"/>
+    </svg>
+  </div>
+
+  <!-- Kaaba silhouette -->
+  <div class="travel-icon icon-kaaba">
+    <svg width="80" height="60" viewBox="0 0 180 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- main cube -->
+      <rect x="30" y="55" width="100" height="95" rx="2" fill="rgba(80,83,200,0.25)" stroke="rgba(160,163,255,0.9)" stroke-width="2"/>
+      <!-- top face (perspective) -->
+      <path d="M30 55 L58 30 L158 30 L130 55 Z" fill="rgba(100,103,220,0.2)" stroke="rgba(160,163,255,0.75)" stroke-width="1.8"/>
+      <!-- right face -->
+      <path d="M130 55 L158 30 L158 120 L130 145 Z" fill="rgba(60,63,160,0.2)" stroke="rgba(140,143,235,0.55)" stroke-width="1.4"/>
+      <!-- kiswa band -->
+      <rect x="30" y="80" width="100" height="16" fill="rgba(180,160,255,0.15)" stroke="rgba(180,160,255,0.45)" stroke-width="1"/>
+      <!-- door -->
+      <rect x="65" y="105" width="30" height="45" rx="2" fill="rgba(160,163,255,0.12)" stroke="rgba(160,163,255,0.65)" stroke-width="1.5"/>
+      <!-- door arch -->
+      <path d="M65 110 Q80 100 95 110" stroke="rgba(160,163,255,0.5)" stroke-width="1" fill="none"/>
+      <!-- minaret left -->
+      <rect x="8" y="28" width="14" height="120" rx="4" fill="rgba(100,103,220,0.18)" stroke="rgba(160,163,255,0.65)" stroke-width="1.5"/>
+      <polygon points="15,10 8,28 22,28" fill="rgba(160,163,255,0.8)"/>
+      <!-- minaret right -->
+      <rect x="158" y="28" width="14" height="120" rx="4" fill="rgba(100,103,220,0.18)" stroke="rgba(160,163,255,0.65)" stroke-width="1.5"/>
+      <polygon points="165,10 158,28 172,28" fill="rgba(160,163,255,0.8)"/>
+      <!-- crescent on top of minarets -->
+      <path d="M11 14 C8 10 9 5 13 4 C10 8 11 12 15 13 C13 14 12 14 11 14Z" fill="rgba(200,202,255,0.7)"/>
+      <path d="M161 14 C158 10 159 5 163 4 C160 8 161 12 165 13 C163 14 162 14 161 14Z" fill="rgba(200,202,255,0.7)"/>
+    </svg>
+  </div>
+
+  <!-- Tasbih / Prayer beads -->
+  <div class="travel-icon icon-tasbih">
+    <svg width="38" height="80" viewBox="0 0 38 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="19" cy="8"  r="5" stroke="rgba(160,163,255,0.8)" stroke-width="1.4" fill="rgba(100,103,220,0.15)"/>
+      <circle cx="19" cy="22" r="4" stroke="rgba(160,163,255,0.7)" stroke-width="1.3" fill="rgba(100,103,220,0.12)"/>
+      <circle cx="19" cy="34" r="4" stroke="rgba(160,163,255,0.65)" stroke-width="1.3" fill="rgba(100,103,220,0.12)"/>
+      <circle cx="19" cy="46" r="4" stroke="rgba(160,163,255,0.6)" stroke-width="1.3" fill="rgba(100,103,220,0.12)"/>
+      <circle cx="19" cy="58" r="4" stroke="rgba(160,163,255,0.55)" stroke-width="1.3" fill="rgba(100,103,220,0.12)"/>
+      <line x1="19" y1="13" x2="19" y2="18" stroke="rgba(160,163,255,0.45)" stroke-width="1"/>
+      <line x1="19" y1="26" x2="19" y2="30" stroke="rgba(160,163,255,0.4)" stroke-width="1"/>
+      <line x1="19" y1="38" x2="19" y2="42" stroke="rgba(160,163,255,0.38)" stroke-width="1"/>
+      <line x1="19" y1="50" x2="19" y2="54" stroke="rgba(160,163,255,0.35)" stroke-width="1"/>
+      <line x1="19" y1="62" x2="19" y2="72" stroke="rgba(160,163,255,0.3)" stroke-width="1"/>
+      <!-- tassel -->
+      <line x1="16" y1="72" x2="14" y2="80" stroke="rgba(160,163,255,0.3)" stroke-width="1" stroke-linecap="round"/>
+      <line x1="19" y1="72" x2="19" y2="80" stroke="rgba(160,163,255,0.3)" stroke-width="1" stroke-linecap="round"/>
+      <line x1="22" y1="72" x2="24" y2="80" stroke="rgba(160,163,255,0.3)" stroke-width="1" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h1 class="headline">Something amazing<br>is coming soon!</h1>
+    <div class="brand-name">Safarihlah</div>
+
+    <!-- Countdown -->
+    <div class="countdown">
+      <div class="count-item"><div class="count-num" id="cd-days">00</div><div class="count-label">Days</div></div>
+      <div class="count-sep">:</div>
+      <div class="count-item"><div class="count-num" id="cd-hours">00</div><div class="count-label">Hours</div></div>
+      <div class="count-sep">:</div>
+      <div class="count-item"><div class="count-num" id="cd-mins">00</div><div class="count-label">Minutes</div></div>
+      <div class="count-sep">:</div>
+      <div class="count-item"><div class="count-num" id="cd-secs">00</div><div class="count-label">Seconds</div></div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p class="footer-text">SAFARIHLAH<br>© 2026 All Rights Reserved</p>
-        <!-- <div class="social-links">
-            <a href="#" class="social-icon">f</a>
-            <a href="#" class="social-icon">𝕏</a>
-            <a href="#" class="social-icon">g</a>
-            <a href="#" class="social-icon">in</a>
-        </div> -->
-    </footer>
+    <p class="sub">Be the first to know when we launch!</p>
 
-    <script src="script.js"></script>
+    <!-- Form -->
+    <div class="form-row" id="form-row">
+      <input class="email-input" type="email" id="email-input" placeholder="Enter your email" autocomplete="email" />
+      <button class="notify-btn" id="notify-btn" onclick="handleSubscribe()">Notify me</button>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+
+    <!-- Success -->
+    <div class="success-msg" id="success-msg">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="9" fill="#4dffaa" opacity="0.2"/><path d="M5 9.5l3 3 5-6" stroke="#8dffc4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      You're on the list! We'll notify you at launch.
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Countdown to a launch date ──
+  const LAUNCH = new Date('2026-05-08T08:00:00');
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const diff = LAUNCH - Date.now();
+    if (diff <= 0) {
+      document.getElementById('cd-days').textContent  = '00';
+      document.getElementById('cd-hours').textContent = '00';
+      document.getElementById('cd-mins').textContent  = '00';
+      document.getElementById('cd-secs').textContent  = '00';
+      return;
+    }
+    const s = Math.floor(diff / 1000);
+    const days  = Math.floor(s / 86400);
+    const hours = Math.floor((s % 86400) / 3600);
+    const mins  = Math.floor((s % 3600) / 60);
+    const secs  = s % 60;
+    document.getElementById('cd-days').textContent  = pad(days);
+    document.getElementById('cd-hours').textContent = pad(hours);
+    document.getElementById('cd-mins').textContent  = pad(mins);
+    document.getElementById('cd-secs').textContent  = pad(secs);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+
+  // ── Subscription ──
+  // Replace YOUR_FORM_ID below with the ID from your Formspree dashboard
+  const FORMSPREE_URL = 'https://formspree.io/f/mjgjlwvk';
+
+  async function handleSubscribe() {
+    const input  = document.getElementById('email-input');
+    const errEl  = document.getElementById('error-msg');
+    const btn    = document.getElementById('notify-btn');
+    const email  = input.value.trim();
+
+    errEl.textContent = '';
+
+    if (!email) {
+      errEl.textContent = 'Please enter your email address.';
+      input.focus();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'That doesn\'t look like a valid email.';
+      input.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        document.getElementById('form-row').style.display = 'none';
+        errEl.style.display = 'none';
+        document.getElementById('success-msg').classList.add('show');
+      } else {
+        const data = await res.json();
+        errEl.textContent = data?.errors?.[0]?.message || 'Something went wrong. Try again.';
+        btn.disabled = false;
+        btn.textContent = 'Notify me';
+      }
+    } catch {
+      errEl.textContent = 'Network error. Please try again.';
+      btn.disabled = false;
+      btn.textContent = 'Notify me';
+    }
+  }
+
+  // Allow Enter key
+  document.getElementById('email-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleSubscribe();
+  });
+</script>
+
 </body>
 </html>
